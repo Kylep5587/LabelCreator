@@ -1,5 +1,5 @@
-export const OPTION_VALUES = [
-    codeFormats = [{
+export const OPTION_VALUES = {
+    codeFormats: [{
             value: 'CODE128A',
             label: 'Code 128A'
         },
@@ -84,4 +84,4 @@ export const OPTION_VALUES = [
     fontSizes = [10, 11, 12, 14, 16, 18, 20, 24],
     barWidths = [1, 2, 3, 4, 5],
     barHeights = [15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100, 125, 150],
-];
+};

@@ -2,15 +2,7 @@ import React, { useState, useEffect } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid/";
 import Textfield from "@material-ui/core/TextField";
-import {
-  MenuItem,
-  Slider,
-  Typography,
-  Card,
-  CardHeader,
-  CardActionArea,
-  CardActions,
-} from "@material-ui/core";
+import { MenuItem, Slider, Typography } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Barcode from "react-barcode";
 import Paper from "@material-ui/core/Paper";
@@ -18,19 +10,14 @@ import Divider from "@material-ui/core/Divider";
 import FormatAlignLeftIcon from "@material-ui/icons/FormatAlignLeft";
 import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
 import FormatAlignRightIcon from "@material-ui/icons/FormatAlignRight";
-import FormatAlignJustifyIcon from "@material-ui/icons/FormatAlignJustify";
 import FormatBoldIcon from "@material-ui/icons/FormatBold";
 import FormatItalicIcon from "@material-ui/icons/FormatItalic";
-import FormatUnderlinedIcon from "@material-ui/icons/FormatUnderlined";
 import FormatColorFillIcon from "@material-ui/icons/FormatColorFill";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import IconButton from "@material-ui/core/IconButton";
 import VerticalAlignTopIcon from "@material-ui/icons/VerticalAlignTop";
-import VerticalAlignBottomIcon from "@material-ui/icons/VerticalAlignBottom";
 import Menu from "@material-ui/core/Menu";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 import "./label-creator.styles.css";
 
@@ -68,32 +55,14 @@ const colors = [
   { value: "#008000", label: "Green" },
 ];
 
-const fontStyles = [
-  { value: " ", label: "None" },
-  { value: "bold", label: "Bold" },
-  { value: "italic", label: "Italic" },
-  { value: "bold italic", label: "Bold Italic" },
-];
-
-const alignments = [
-  { value: "center", label: "Center" },
-  { value: "left", label: "Left" },
-  { value: "right", label: "Right" },
-];
-
-const textPositions = [
-  { value: "top", label: "Top" },
-  { value: "bottom", label: "Bottom" },
-];
-
 function LabelCreator() {
   const classes = useStyles();
   const [fontStyle, setFontStyle] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [settings, setSettings] = useState({
-    value: "Hi",
-    format: "CODE128",
+    value: Math.floor(Math.random() * 100000000),
+    format: "CODE128A",
     renderer: "svg",
     width: 2,
     height: 100,
@@ -141,6 +110,10 @@ function LabelCreator() {
     setAnchorEl(null);
   };
 
+  const handleChangeDropDown = (event, index, value) => {
+    setSettings({ ...settings, format: value });
+  };
+
   const StyledToggleButtonGroup = withStyles((theme) => ({
     grouped: {
       margin: theme.spacing(0.5),
@@ -163,6 +136,7 @@ function LabelCreator() {
       setSettings((settings) => ({ ...settings, fontOptions: fontStyle.join(" ") }));
     } else setSettings((settings) => ({ ...settings, fontOptions: fontStyle.toString() }));
   }, [fontStyle]);
+
   return (
     <Container>
       <Typography variant='h3' gutterBottom>
@@ -223,9 +197,6 @@ function LabelCreator() {
                         <ToggleButton value='top' aria-label='left aligned'>
                           <VerticalAlignTopIcon />
                         </ToggleButton>
-                        <ToggleButton value='bottom' aria-label='centered'>
-                          <VerticalAlignBottomIcon />
-                        </ToggleButton>
                       </StyledToggleButtonGroup>
 
                       <ToggleButtonGroup>
@@ -248,10 +219,9 @@ function LabelCreator() {
                           {colors.map((option) => (
                             <MenuItem
                               key={option.value}
+                              primaryText={option.label}
                               onClick={(event) => handlePickColor(option, event)}
-                            >
-                              {option.label}
-                            </MenuItem>
+                            />
                           ))}
                         </Menu>
                       </ToggleButtonGroup>
@@ -272,12 +242,21 @@ function LabelCreator() {
                         size='small'
                         style={{ width: "100%" }}
                         variant='outlined'
+                        value={settings.value}
                         name='value'
                         label='Barcode value'
                         onChange={handleChangeByName}
                       />
                     </Grid>
                     <Grid item>
+                      {/* <DropDownMenu value={settings.format} onChange={handleChangeDropDown}>
+                        {codeFormats.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </DropDownMenu> */}
+                      {console.log("Settings...", settings)}
                       <Textfield
                         style={{ width: "100%" }}
                         size='small'
@@ -285,7 +264,7 @@ function LabelCreator() {
                         select
                         name='format'
                         label='Format'
-                        defaultValue='CODE128A'
+                        value={settings.format}
                         onChange={handleChangeByName}
                       >
                         {codeFormats.map((option) => (
