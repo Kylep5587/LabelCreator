@@ -86,7 +86,7 @@ function LabelCreator() {
   };
 
   const handleChangeByID = (e, value) => {
-    setSettings((settings) => ({ ...settings, [e.target.id]: value }));
+    setSettings((settings) => ({ ...settings, width: value }));
   };
 
   const handleAlignment = (event, newAlignment) => {
@@ -212,7 +212,6 @@ function LabelCreator() {
                           open={open}
                           onClose={handlePickColor}
                         >
-                          {console.log("colors", colors)}
                           {colors.map((option) => (
                             <MenuItem
                               key={option.value}
