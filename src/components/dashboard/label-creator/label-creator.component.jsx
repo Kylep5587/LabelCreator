@@ -2,15 +2,7 @@ import React, { useState, useEffect } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid/";
 import Textfield from "@material-ui/core/TextField";
-import {
-  MenuItem,
-  Slider,
-  Typography,
-  Card,
-  CardHeader,
-  CardActionArea,
-  CardActions,
-} from "@material-ui/core";
+import { MenuItem, Slider, Typography } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Barcode from "react-barcode";
 import Paper from "@material-ui/core/Paper";
@@ -18,19 +10,14 @@ import Divider from "@material-ui/core/Divider";
 import FormatAlignLeftIcon from "@material-ui/icons/FormatAlignLeft";
 import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
 import FormatAlignRightIcon from "@material-ui/icons/FormatAlignRight";
-import FormatAlignJustifyIcon from "@material-ui/icons/FormatAlignJustify";
 import FormatBoldIcon from "@material-ui/icons/FormatBold";
 import FormatItalicIcon from "@material-ui/icons/FormatItalic";
-import FormatUnderlinedIcon from "@material-ui/icons/FormatUnderlined";
 import FormatColorFillIcon from "@material-ui/icons/FormatColorFill";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import IconButton from "@material-ui/core/IconButton";
 import VerticalAlignTopIcon from "@material-ui/icons/VerticalAlignTop";
-import VerticalAlignBottomIcon from "@material-ui/icons/VerticalAlignBottom";
 import Menu from "@material-ui/core/Menu";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 import "./label-creator.styles.css";
 
@@ -66,24 +53,6 @@ const colors = [
   { value: "#ff0000", label: "Red" },
   { value: "#808080", label: "Gray" },
   { value: "#008000", label: "Green" },
-];
-
-const fontStyles = [
-  { value: " ", label: "None" },
-  { value: "bold", label: "Bold" },
-  { value: "italic", label: "Italic" },
-  { value: "bold italic", label: "Bold Italic" },
-];
-
-const alignments = [
-  { value: "center", label: "Center" },
-  { value: "left", label: "Left" },
-  { value: "right", label: "Right" },
-];
-
-const textPositions = [
-  { value: "top", label: "Top" },
-  { value: "bottom", label: "Bottom" },
 ];
 
 function LabelCreator() {
