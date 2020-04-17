@@ -110,10 +110,6 @@ function LabelCreator() {
     setAnchorEl(null);
   };
 
-  const handleChangeDropDown = (event, index, value) => {
-    setSettings({ ...settings, format: value });
-  };
-
   const StyledToggleButtonGroup = withStyles((theme) => ({
     grouped: {
       margin: theme.spacing(0.5),
