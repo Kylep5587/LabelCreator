@@ -85,8 +85,24 @@ function LabelCreator() {
     setSettings((settings) => ({ ...settings, [name]: value }));
   };
 
-  const handleChangeByID = (e, value) => {
+  const handleChangeWidth = (e, value) => {
     setSettings((settings) => ({ ...settings, width: value }));
+  };
+
+  const handleChangeHeight = (e, value) => {
+    setSettings((settings) => ({ ...settings, height: value }));
+  };
+
+  const handleChangeFont = (e, value) => {
+    setSettings((settings) => ({ ...settings, fontSize: value }));
+  };
+
+  const handleChangeMarginSize = (e, value) => {
+    setSettings((settings) => ({ ...settings, margin: value }));
+  };
+
+  const handleChangeTextMargin = (e, value) => {
+    setSettings((settings) => ({ ...settings, textMargin: value }));
   };
 
   const handleAlignment = (event, newAlignment) => {
@@ -293,7 +309,7 @@ function LabelCreator() {
                         max={5}
                         step={1}
                         valueLabelDisplay='auto'
-                        onChange={handleChangeByID}
+                        onChange={handleChangeWidth}
                         style={{ width: "175px" }}
                       />
                     </Grid>
@@ -310,7 +326,7 @@ function LabelCreator() {
                         valueLabelDisplay='auto'
                         max={120}
                         min={10}
-                        onChange={handleChangeByID}
+                        onChange={handleChangeHeight}
                         style={{ width: "175px" }}
                       />
                     </Grid>
@@ -328,7 +344,7 @@ function LabelCreator() {
                         max={24}
                         min={10}
                         style={{ width: "175px" }}
-                        onChange={handleChangeByID}
+                        onChange={handleChangeFont}
                       />
                     </Grid>
                     <Grid item>
@@ -345,7 +361,7 @@ function LabelCreator() {
                         max={10}
                         min={0}
                         style={{ width: "175px" }}
-                        onChange={handleChangeByID}
+                        onChange={handleChangeTextMargin}
                       />
                     </Grid>
                     <Grid item>
@@ -362,7 +378,7 @@ function LabelCreator() {
                         max={25}
                         min={5}
                         style={{ width: "175px" }}
-                        onChange={handleChangeByID}
+                        onChange={handleChangeMarginSize}
                       />
                     </Grid>
                     {/* Put additional rows in the right mini column here
