@@ -119,6 +119,7 @@ function LabelCreator() {
     margin: 10,
   });
 
+  console.log("Settings", settings);
   /* Updates state values when modified
    **********************************************/
   //This handler is used for textfields
@@ -219,12 +220,13 @@ function LabelCreator() {
                         </ToggleButton>
 
                         {/* Font style menu item button */}
+                      </ToggleButtonGroup>
+                      <ToggleButtonGroup>
                         <ToggleButton
                           style={{ border: "none" }}
                           aria-label='font-faces'
                           aria-controls='long-menu'
                           aria-haspopup='true'
-                          value='font'
                           onClick={handleClick("font")}
                         >
                           <TextFormatIcon />
@@ -300,7 +302,7 @@ function LabelCreator() {
                       {/* Barcode color button and menu */}
                       <ToggleButtonGroup>
                         <ToggleButton
-                          value='lineColor'
+                          value={settings.lineColor}
                           style={{ border: "none" }}
                           aria-label='more'
                           aria-controls='long-menu'
@@ -361,13 +363,6 @@ function LabelCreator() {
                       />
                     </Grid>
                     <Grid item>
-                      {/* <DropDownMenu value={settings.format} onChange={handleChangeDropDown}>
-                        {codeFormats.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </DropDownMenu> */}
                       <Textfield
                         style={{ width: "100%" }}
                         size='small'
@@ -423,6 +418,7 @@ function LabelCreator() {
                         valueLabelDisplay='auto'
                         max={120}
                         min={10}
+                        value={settings.height}
                         onChange={handleChangeOther("height")}
                         style={{ width: "175px" }}
                       />
@@ -438,6 +434,7 @@ function LabelCreator() {
                         step={2}
                         marks={true}
                         valueLabelDisplay='auto'
+                        value={settings.size}
                         max={24}
                         min={10}
                         style={{ width: "175px" }}
@@ -457,6 +454,7 @@ function LabelCreator() {
                         valueLabelDisplay='auto'
                         max={10}
                         min={0}
+                        value={settings.textMargin}
                         style={{ width: "175px" }}
                         onChange={handleChangeOther("textMargin")}
                       />
@@ -474,6 +472,7 @@ function LabelCreator() {
                         valueLabelDisplay='auto'
                         max={25}
                         min={5}
+                        value={settings.margin}
                         style={{ width: "175px" }}
                         onChange={handleChangeOther("margin")}
                       />
