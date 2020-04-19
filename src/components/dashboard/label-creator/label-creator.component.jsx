@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid/";
 import Textfield from "@material-ui/core/TextField";
@@ -20,6 +20,7 @@ import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import Menu from "@material-ui/core/Menu";
 import SettingsIcon from "@material-ui/icons/Settings";
+import TextFormatIcon from "@material-ui/icons/TextFormat";
 
 import "./label-creator.styles.css";
 
@@ -63,24 +64,45 @@ const settingsMenuItems = [
   { value: "value3", label: "Setting3" },
 ];
 
+const fontFaces = [
+  { value: "monospace", label: "Monospace" },
+  { value: "arial", label: "Arial" },
+  { value: "calibri", label: "Calibri" },
+  { value: "consolas", label: "Consolas" },
+  { value: "tahoma", label: "Tahoma" },
+  { value: "verdana", label: "Verdana" },
+];
+const labelSizes = [
+  { value: "4 6", label: "4 x 6" },
+  { value: "4 2", label: "4 x 2" },
+  { value: "3 3", label: "3 x 3" },
+  { value: "2 3", label: "2 x 3" },
+  { value: "2 2", label: "2 x 2" },
+  { value: "2.63 1", label: "2 5/8 x 1" },
+];
+
+const labelTypes = [
+  { value: "product", label: "Product" },
+  { value: "package", label: "Package" },
+];
+
 function LabelCreator() {
   const classes = useStyles();
   const [fontStyle, setFontStyle] = useState([]);
   const [anchorEl, setAnchorEl] = useState({
     lineColor: null,
     settings: null,
+    font: null,
   });
-  // const [open, setOpen] = useState({
-  //   settings: false,
-  //   color: false,
-  // });
+
   const open = {
     color: Boolean(anchorEl.lineColor),
     settings: Boolean(anchorEl.settings),
+    font: Boolean(anchorEl.font),
   };
 
   const [settings, setSettings] = useState({
-    value: Math.floor(Math.random() * 100000000),
+    value: Math.floor(Math.random() * 100000000).toString(),
     format: "CODE128A",
     renderer: "svg",
     width: 2,
@@ -126,20 +148,6 @@ function LabelCreator() {
     setSettings((displayValue) => ({ ...settings, displayValue: !settings.displayValue }));
   };
 
-  const StyledToggleButtonGroup = withStyles((theme) => ({
-    grouped: {
-      margin: theme.spacing(0.5),
-      border: "none",
-      padding: theme.spacing(0, 1),
-      "&:not(:first-child)": {
-        borderRadius: theme.shape.borderRadius,
-      },
-      "&:first-child": {
-        borderRadius: theme.shape.borderRadius,
-      },
-    },
-  }))(ToggleButtonGroup);
-
   useEffect(() => {
     //This useEffect is checked every time the fontStyle state changes.
     //If the state has an array of items in it such as, ["bold", "italics"]
@@ -174,6 +182,7 @@ function LabelCreator() {
                           aria-label='more'
                           aria-controls='long-menu'
                           aria-haspopup='true'
+                          value='settings'
                           onClick={handleClick("settings")}
                         >
                           <SettingsIcon />
@@ -188,7 +197,6 @@ function LabelCreator() {
                           {settingsMenuItems.map((option) => (
                             <MenuItem
                               key={option.value}
-                              primaryText={option.label}
                               onClick={(event) => handleClickMenuItem("settings", option, event)}
                             >
                               {option.label}
@@ -196,51 +204,97 @@ function LabelCreator() {
                           ))}
                         </Menu>
                       </ToggleButtonGroup>
-                      <StyledToggleButtonGroup
+                      <ToggleButtonGroup
                         value={fontStyle}
                         onChange={handleFormat}
                         aria-label='text formatting'
                       >
-                        <ToggleButton value='bold' aria-label='bold'>
+                        <ToggleButton value='bold' aria-label='bold' style={{ border: "none" }}>
                           <FormatBoldIcon />
                         </ToggleButton>
-                        <ToggleButton value='italic' aria-label='italic'>
+                        <ToggleButton value='italic' aria-label='italic' style={{ border: "none" }}>
                           <FormatItalicIcon />
                         </ToggleButton>
-                      </StyledToggleButtonGroup>
 
-                      <StyledToggleButtonGroup
+                        <ToggleButton
+                          style={{ border: "none" }}
+                          aria-label='font-faces'
+                          aria-controls='long-menu'
+                          aria-haspopup='true'
+                          value='font'
+                          onClick={handleClick("font")}
+                        >
+                          <TextFormatIcon />
+                        </ToggleButton>
+                        <Menu
+                          name='font'
+                          aria-label='font'
+                          defaultValue='monospace'
+                          anchorEl={anchorEl.font}
+                          keepMounted
+                          open={open.font}
+                          onClose={handleClickMenuItem}
+                        >
+                          {fontFaces.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              onClick={(event) => handleClickMenuItem("font", option, event)}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </ToggleButtonGroup>
+
+                      <ToggleButtonGroup
                         style={{ marginLeft: 1 }}
                         value={settings.textAlign}
                         exclusive
                         onChange={handleChangeOther("textAlign")}
                         aria-label='text alignment'
                       >
-                        <ToggleButton value='left' aria-label='left aligned'>
+                        <ToggleButton
+                          value='left'
+                          aria-label='left aligned'
+                          style={{ border: "none" }}
+                        >
                           <FormatAlignLeftIcon />
                         </ToggleButton>
-                        <ToggleButton value='center' aria-label='centered'>
+                        <ToggleButton
+                          value='center'
+                          aria-label='centered'
+                          style={{ border: "none" }}
+                        >
                           <FormatAlignCenterIcon />
                         </ToggleButton>
-                        <ToggleButton value='right' aria-label='right aligned'>
+                        <ToggleButton
+                          value='right'
+                          aria-label='right aligned'
+                          style={{ border: "none" }}
+                        >
                           <FormatAlignRightIcon />
                         </ToggleButton>
-                      </StyledToggleButtonGroup>
+                      </ToggleButtonGroup>
 
-                      <StyledToggleButtonGroup
+                      <ToggleButtonGroup
                         style={{ marginLeft: 1 }}
                         value={settings.textPosition}
                         exclusive
                         onChange={handleChangeOther("textPosition")}
                         aria-label='text alignment'
                       >
-                        <ToggleButton value='top' aria-label='left aligned'>
+                        <ToggleButton
+                          value='top'
+                          aria-label='left aligned'
+                          style={{ border: "none" }}
+                        >
                           <VerticalAlignTopIcon />
                         </ToggleButton>
-                      </StyledToggleButtonGroup>
+                      </ToggleButtonGroup>
 
                       <ToggleButtonGroup>
                         <ToggleButton
+                          value='lineColor'
                           style={{ border: "none" }}
                           aria-label='more'
                           aria-controls='long-menu'
@@ -260,7 +314,6 @@ function LabelCreator() {
                           {colors.map((option) => (
                             <MenuItem
                               key={option.value}
-                              primaryText={option.label}
                               onClick={(event) => handleClickMenuItem("lineColor", option, event)}
                             >
                               {option.label}
@@ -269,15 +322,15 @@ function LabelCreator() {
                         </Menu>
                       </ToggleButtonGroup>
 
-                      <StyledToggleButtonGroup value={settings.displayValue}>
-                        <ToggleButton>
+                      <ToggleButtonGroup value={settings.displayValue}>
+                        <ToggleButton style={{ border: "none" }} value='showHide'>
                           {settings.displayValue ? (
                             <VisibilityOffIcon onClick={toggleTextVisibility} />
                           ) : (
                             <VisibilityIcon onClick={toggleTextVisibility} />
                           )}
                         </ToggleButton>
-                      </StyledToggleButtonGroup>
+                      </ToggleButtonGroup>
                     </Paper>
                   </Grid>
                 </Grid>
@@ -441,7 +494,6 @@ function LabelCreator() {
           </Paper>
         </Grid>
       </Grid>
-      <Grid maxWidth='sm'></Grid>
     </Container>
   );
 }
