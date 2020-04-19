@@ -177,6 +177,7 @@ function LabelCreator() {
                   <Grid item xs={12}>
                     <Paper>
                       <ToggleButtonGroup>
+                        {/* Presets button and menu */}
                         <ToggleButton
                           style={{ border: "none" }}
                           aria-label='more'
@@ -209,6 +210,7 @@ function LabelCreator() {
                         onChange={handleFormat}
                         aria-label='text formatting'
                       >
+                        {/* Bold and Italic buttons */}
                         <ToggleButton value='bold' aria-label='bold' style={{ border: "none" }}>
                           <FormatBoldIcon />
                         </ToggleButton>
@@ -216,6 +218,7 @@ function LabelCreator() {
                           <FormatItalicIcon />
                         </ToggleButton>
 
+                        {/* Font style menu item button */}
                         <ToggleButton
                           style={{ border: "none" }}
                           aria-label='font-faces'
@@ -246,6 +249,7 @@ function LabelCreator() {
                         </Menu>
                       </ToggleButtonGroup>
 
+                      {/* Text alignment buttons */}
                       <ToggleButtonGroup
                         style={{ marginLeft: 1 }}
                         value={settings.textAlign}
@@ -276,6 +280,7 @@ function LabelCreator() {
                         </ToggleButton>
                       </ToggleButtonGroup>
 
+                      {/* Text position button (above or below barcode) */}
                       <ToggleButtonGroup
                         style={{ marginLeft: 1 }}
                         value={settings.textPosition}
@@ -292,6 +297,7 @@ function LabelCreator() {
                         </ToggleButton>
                       </ToggleButtonGroup>
 
+                      {/* Barcode color button and menu */}
                       <ToggleButtonGroup>
                         <ToggleButton
                           value='lineColor'
