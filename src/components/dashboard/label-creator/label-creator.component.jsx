@@ -1,10 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid/";
 import Textfield from "@material-ui/core/TextField";
 import { MenuItem, Slider, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Barcode from "react-barcode";
+import Paper from "@material-ui/core/Paper";
+import Divider from "@material-ui/core/Divider";
+import FormatAlignLeftIcon from "@material-ui/icons/FormatAlignLeft";
+import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
+import FormatAlignRightIcon from "@material-ui/icons/FormatAlignRight";
+import FormatBoldIcon from "@material-ui/icons/FormatBold";
+import FormatItalicIcon from "@material-ui/icons/FormatItalic";
+import FormatColorFillIcon from "@material-ui/icons/FormatColorFill";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import VerticalAlignTopIcon from "@material-ui/icons/VerticalAlignTop";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import Menu from "@material-ui/core/Menu";
+import SettingsIcon from "@material-ui/icons/Settings";
+import TextFormatIcon from "@material-ui/icons/TextFormat";
 
 import "./label-creator.styles.css";
 
@@ -14,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(2),
       width: "25h",
     },
+  },
+  header: {
+    fontSize: "24px",
   },
 }));
 
@@ -39,30 +58,52 @@ const colors = [
   { value: "#008000", label: "Green" },
 ];
 
-const fontStyles = [
-  { value: " ", label: "None" },
-  { value: "bold", label: "Bold" },
-  { value: "italic", label: "Italic" },
-  { value: "bold italic", label: "Bold Italic" },
+const settingsMenuItems = [
+  { value: "value", label: "Setting1" },
+  { value: "value2", label: "Setting2" },
+  { value: "value3", label: "Setting3" },
 ];
 
-const alignments = [
-  { value: "center", label: "Center" },
-  { value: "left", label: "Left" },
-  { value: "right", label: "Right" },
+const fontFaces = [
+  { value: "monospace", label: "Monospace" },
+  { value: "arial", label: "Arial" },
+  { value: "calibri", label: "Calibri" },
+  { value: "consolas", label: "Consolas" },
+  { value: "tahoma", label: "Tahoma" },
+  { value: "verdana", label: "Verdana" },
+];
+const labelSizes = [
+  { value: "4 6", label: "4 x 6" },
+  { value: "4 2", label: "4 x 2" },
+  { value: "3 3", label: "3 x 3" },
+  { value: "2 3", label: "2 x 3" },
+  { value: "2 2", label: "2 x 2" },
+  { value: "2.63 1", label: "2 5/8 x 1" },
 ];
 
-const textPositions = [
-  { value: "top", label: "Top" },
-  { value: "bottom", label: "Bottom" },
+const labelTypes = [
+  { value: "product", label: "Product" },
+  { value: "package", label: "Package" },
 ];
 
 function LabelCreator() {
   const classes = useStyles();
+  const [fontStyle, setFontStyle] = useState([]);
+  const [anchorEl, setAnchorEl] = useState({
+    lineColor: null,
+    settings: null,
+    font: null,
+  });
+
+  const open = {
+    color: Boolean(anchorEl.lineColor),
+    settings: Boolean(anchorEl.settings),
+    font: Boolean(anchorEl.font),
+  };
 
   const [settings, setSettings] = useState({
-    value: "Hi",
-    format: "CODE128",
+    value: Math.floor(Math.random() * 100000000).toString(),
+    format: "CODE128A",
     renderer: "svg",
     width: 2,
     height: 100,
@@ -80,206 +121,379 @@ function LabelCreator() {
 
   /* Updates state values when modified
    **********************************************/
-  const handleChange = (e) => {
-    let change = {};
-    change[e.target.name] = e.target.value;
-    setSettings({ change });
+  //This handler is used for textfields
+  const handleChange = (name) => (e) => {
+    setSettings((settings) => ({ ...settings, [name]: e.target.value }));
+  };
+  // This event handler will change all other items such as sliders and material-ui buttons.
+  const handleChangeOther = (name) => (e, value) => {
+    setSettings((settings) => ({ ...settings, [name]: value }));
+  };
+  //Font formatting needs to be separate because the information is stored as an array and will not be passed to the settings with a ... (spread) when calling the barcode component.
+  const handleFormat = (event, newFormats) => {
+    setFontStyle(newFormats);
   };
 
+  const handleClick = (selection) => (event) => {
+    setAnchorEl((anchorEl) => ({ ...anchorEl, [selection]: event.currentTarget }));
+  };
+
+  const handleClickMenuItem = (selection, option) => {
+    //Pass the "selection" as a string and then alter the state of AnchorEl
+    setSettings((settings) => ({ ...settings, [selection]: option.value }));
+    setAnchorEl((anchorEl) => ({ ...anchorEl, [selection]: null }));
+  };
+
+  const toggleTextVisibility = (e) => {
+    setSettings((displayValue) => ({ ...settings, displayValue: !settings.displayValue }));
+  };
+
+  useEffect(() => {
+    //This useEffect is checked every time the fontStyle state changes.
+    //If the state has an array of items in it such as, ["bold", "italics"]
+    //it will join those together into one string and insert into the Settings state.
+    if (fontStyle.length > 1) {
+      setSettings((settings) => ({ ...settings, fontOptions: fontStyle.join(" ") }));
+    } else setSettings((settings) => ({ ...settings, fontOptions: fontStyle.toString() }));
+  }, [fontStyle]);
+
   return (
-    <Container maxWidth='80vw'>
-      <form className={classes.root} noValidate autoComplete='off'>
-        <Grid container direction='row' justify='space-around' spacing={2} alignItems='flex-end'>
-          <Grid item xl lg sm md xs>
-            <Textfield
-              id='value'
-              label='Barcode value'
-              style={{ width: "175px" }}
-              onChange={handleChange}
-            />
-          </Grid>
+    <Container>
+      <Typography variant='h3' gutterBottom>
+        Barcode Label Generator
+      </Typography>
+      <Grid container direction='row' spacing={2}>
+        <Grid item sm={12} md={6}>
+          {/* The first panel of information goes here and will at most ever take up half the screen*/}
+          <Paper elevation={3}>
+            <Grid container direction='row' spacing={1} style={{ padding: 8 }}>
+              <Grid item xs={12}>
+                <Typography variant='h5'>Settings</Typography>
+                <Divider />
+              </Grid>
+              {/* Adding toolbar for small buttons */}
+              <Grid item>
+                <Grid container direction='row' spacing={1}>
+                  <Grid item xs={12}>
+                    <Paper>
+                      <ToggleButtonGroup>
+                        <ToggleButton
+                          style={{ border: "none" }}
+                          aria-label='more'
+                          aria-controls='long-menu'
+                          aria-haspopup='true'
+                          value='settings'
+                          onClick={handleClick("settings")}
+                        >
+                          <SettingsIcon />
+                        </ToggleButton>
+                        <Menu
+                          id='settings'
+                          anchorEl={anchorEl.settings}
+                          keepMounted
+                          open={open.settings}
+                          onClose={handleClickMenuItem}
+                        >
+                          {settingsMenuItems.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              onClick={(event) => handleClickMenuItem("settings", option, event)}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </ToggleButtonGroup>
+                      <ToggleButtonGroup
+                        value={fontStyle}
+                        onChange={handleFormat}
+                        aria-label='text formatting'
+                      >
+                        <ToggleButton value='bold' aria-label='bold' style={{ border: "none" }}>
+                          <FormatBoldIcon />
+                        </ToggleButton>
+                        <ToggleButton value='italic' aria-label='italic' style={{ border: "none" }}>
+                          <FormatItalicIcon />
+                        </ToggleButton>
 
-          <Grid item xl lg sm md xs>
-            <Textfield
-              select
-              id='format'
-              label='Format'
-              defaultValue='CODE128A'
-              style={{ width: "150px" }}
-              onChange={handleChange}
-            >
-              {codeFormats.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Textfield>
-          </Grid>
+                        <ToggleButton
+                          style={{ border: "none" }}
+                          aria-label='font-faces'
+                          aria-controls='long-menu'
+                          aria-haspopup='true'
+                          value='font'
+                          onClick={handleClick("font")}
+                        >
+                          <TextFormatIcon />
+                        </ToggleButton>
+                        <Menu
+                          name='font'
+                          aria-label='font'
+                          defaultValue='monospace'
+                          anchorEl={anchorEl.font}
+                          keepMounted
+                          open={open.font}
+                          onClose={handleClickMenuItem}
+                        >
+                          {fontFaces.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              onClick={(event) => handleClickMenuItem("font", option, event)}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </ToggleButtonGroup>
 
-          <Grid item xl lg sm md xs>
-            <Typography id='width-label' gutterBottom>
-              Barcode Width
-            </Typography>
-            <Slider
-              id='width'
-              aria-labelledby='width-label'
-              defaultValue={2}
-              marks={true}
-              min={1}
-              max={5}
-              step={1}
-              valueLabelDisplay='auto'
-              style={{ width: "175px" }}
-            />
-          </Grid>
+                      <ToggleButtonGroup
+                        style={{ marginLeft: 1 }}
+                        value={settings.textAlign}
+                        exclusive
+                        onChange={handleChangeOther("textAlign")}
+                        aria-label='text alignment'
+                      >
+                        <ToggleButton
+                          value='left'
+                          aria-label='left aligned'
+                          style={{ border: "none" }}
+                        >
+                          <FormatAlignLeftIcon />
+                        </ToggleButton>
+                        <ToggleButton
+                          value='center'
+                          aria-label='centered'
+                          style={{ border: "none" }}
+                        >
+                          <FormatAlignCenterIcon />
+                        </ToggleButton>
+                        <ToggleButton
+                          value='right'
+                          aria-label='right aligned'
+                          style={{ border: "none" }}
+                        >
+                          <FormatAlignRightIcon />
+                        </ToggleButton>
+                      </ToggleButtonGroup>
 
-          <Grid item xl lg sm md xs>
-            <Typography id='height-label' gutterBottom>
-              Barcode Height
-            </Typography>
-            <Slider
-              id='height'
-              aria-labelledby='height-label'
-              defaultValue={50}
-              step={10}
-              marks={true}
-              valueLabelDisplay='auto'
-              max={120}
-              min={10}
-              style={{ width: "175px" }}
-            />
-          </Grid>
+                      <ToggleButtonGroup
+                        style={{ marginLeft: 1 }}
+                        value={settings.textPosition}
+                        exclusive
+                        onChange={handleChangeOther("textPosition")}
+                        aria-label='text alignment'
+                      >
+                        <ToggleButton
+                          value='top'
+                          aria-label='left aligned'
+                          style={{ border: "none" }}
+                        >
+                          <VerticalAlignTopIcon />
+                        </ToggleButton>
+                      </ToggleButtonGroup>
 
-          <Grid item xl lg sm md xs>
-            <Textfield
-              select
-              id='lineColor'
-              defaultValue='#000000'
-              label='Bar Color'
-              style={{ width: "175px" }}
-            >
-              {colors.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Textfield>
-          </Grid>
+                      <ToggleButtonGroup>
+                        <ToggleButton
+                          value='lineColor'
+                          style={{ border: "none" }}
+                          aria-label='more'
+                          aria-controls='long-menu'
+                          aria-haspopup='true'
+                          onClick={handleClick("lineColor")}
+                        >
+                          <FormatColorFillIcon />
+                        </ToggleButton>
+                        <Menu
+                          id='lineColor'
+                          name='lineColor'
+                          anchorEl={anchorEl.lineColor}
+                          keepMounted
+                          open={open.color}
+                          onClose={handleClickMenuItem}
+                        >
+                          {colors.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              onClick={(event) => handleClickMenuItem("lineColor", option, event)}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </ToggleButtonGroup>
+
+                      <ToggleButtonGroup value={settings.displayValue}>
+                        <ToggleButton style={{ border: "none" }} value='showHide'>
+                          {settings.displayValue ? (
+                            <VisibilityOffIcon onClick={toggleTextVisibility} />
+                          ) : (
+                            <VisibilityIcon onClick={toggleTextVisibility} />
+                          )}
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+
+              <Grid container direction='row' spacing={1} justify='space-around'>
+                <Grid item>
+                  {/* Left Mini Panel */}
+                  <Grid container direction='column' spacing={3}>
+                    <Grid item>
+                      <Textfield
+                        size='small'
+                        style={{ width: "100%" }}
+                        variant='outlined'
+                        value={settings.value}
+                        name='value'
+                        label='Barcode value'
+                        onChange={handleChange("value")}
+                      />
+                    </Grid>
+                    <Grid item>
+                      {/* <DropDownMenu value={settings.format} onChange={handleChangeDropDown}>
+                        {codeFormats.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </DropDownMenu> */}
+                      <Textfield
+                        style={{ width: "100%" }}
+                        size='small'
+                        variant='outlined'
+                        select
+                        name='format'
+                        label='Format'
+                        value={settings.format}
+                        onChange={handleChange("format")}
+                      >
+                        {codeFormats.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Textfield>
+                    </Grid>
+                    {/* Put additional rows in the left mini column here
+                      <Grid item> information </Grid>
+                    */}
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  {/* Right Mini Panel */}
+                  <Grid container direction='column'>
+                    <Grid item>
+                      <Typography id='width-label' gutterBottom>
+                        Barcode Width
+                      </Typography>
+                      <Slider
+                        id='width'
+                        aria-labelledby='width-label'
+                        defaultValue={settings.width}
+                        marks={true}
+                        min={1}
+                        max={5}
+                        step={1}
+                        valueLabelDisplay='auto'
+                        onChange={handleChangeOther("width")}
+                        style={{ width: "175px" }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography id='height-label' gutterBottom>
+                        Barcode Height
+                      </Typography>
+                      <Slider
+                        id='height'
+                        aria-labelledby='height-label'
+                        defaultValue={50}
+                        step={10}
+                        marks={true}
+                        valueLabelDisplay='auto'
+                        max={120}
+                        min={10}
+                        onChange={handleChangeOther("height")}
+                        style={{ width: "175px" }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography id='font-size-label' gutterBottom>
+                        Font Size
+                      </Typography>
+                      <Slider
+                        id='fontSize'
+                        aria-labelledby='font-size-label'
+                        defaultValue={18}
+                        step={2}
+                        marks={true}
+                        valueLabelDisplay='auto'
+                        max={24}
+                        min={10}
+                        style={{ width: "175px" }}
+                        onChange={handleChangeOther("fontSize")}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography id='text-margin-label' gutterBottom>
+                        Text Margin
+                      </Typography>
+                      <Slider
+                        id='textMargin'
+                        aria-labelledby='text-margin-label'
+                        defaultValue={2}
+                        step={1}
+                        marks={true}
+                        valueLabelDisplay='auto'
+                        max={10}
+                        min={0}
+                        style={{ width: "175px" }}
+                        onChange={handleChangeOther("textMargin")}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Typography id='margin-label' gutterBottom>
+                        Margin Size
+                      </Typography>
+                      <Slider
+                        id='margin'
+                        aria-labelledby='margin-label'
+                        defaultValue={10}
+                        step={5}
+                        marks={true}
+                        valueLabelDisplay='auto'
+                        max={25}
+                        min={5}
+                        style={{ width: "175px" }}
+                        onChange={handleChangeOther("margin")}
+                      />
+                    </Grid>
+                    {/* Put additional rows in the right mini column here
+                      <Grid item> information </Grid>
+                    */}
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Paper>
         </Grid>
 
-        <Grid container direction='row' justify='space-around' spacing={2} alignItems='flex-end'>
-          <Grid item xl lg sm md xs>
-            <Textfield
-              select
-              id='textAlign'
-              defaultValue='center'
-              label='Text Alignment'
-              style={{ width: "175px" }}
-            >
-              {alignments.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Textfield>
-          </Grid>
-
-          <Grid item xl lg sm md xs>
-            <Textfield
-              select
-              id='textPosition'
-              defaultValue='bottom'
-              label='Text Position'
-              style={{ width: "175px" }}
-            >
-              {textPositions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Textfield>
-          </Grid>
-
-          <Grid item xl lg sm md xs>
-            <Textfield
-              select
-              id='fontOptions'
-              defaultValue=' '
-              label='Font Style'
-              style={{ width: "175px" }}
-            >
-              {fontStyles.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Textfield>
-          </Grid>
-
-          <Grid item xl lg sm md xs>
-            <Typography id='font-size-label' gutterBottom>
-              Font Size
-            </Typography>
-            <Slider
-              id='fontSize'
-              aria-labelledby='font-size-label'
-              defaultValue={18}
-              step={2}
-              marks={true}
-              valueLabelDisplay='auto'
-              max={24}
-              min={10}
-              style={{ width: "175px" }}
-            />
-          </Grid>
-
-          <Grid item xl lg sm md xs>
-            <Typography id='text-margin-label' gutterBottom>
-              Text Margin
-            </Typography>
-            <Slider
-              id='textMargin'
-              aria-labelledby='text-margin-label'
-              defaultValue={2}
-              step={1}
-              marks={true}
-              valueLabelDisplay='auto'
-              max={10}
-              min={0}
-              style={{ width: "175px" }}
-            />
-          </Grid>
-
-          <Grid container direction='row' justify='space-around' spacing={2} alignItems='flex-end'>
-            <Grid item xl lg sm md xs>
-              <Textfield id='text' label='Text Value' style={{ width: "175px" }} />
+        <Grid item>
+          <Paper elevation={3}>
+            <Grid container direction='row' spacing={1} style={{ padding: 8 }}>
+              <Grid item xs={12}>
+                <Typography variant='h5'>Preview</Typography>
+                <Divider />
+                <Barcode {...settings} />
+              </Grid>
             </Grid>
-
-            <Grid item xl lg sm md xs>
-              <Typography id='margin-label' gutterBottom>
-                Margin Size
-              </Typography>
-              <Slider
-                id='margin'
-                aria-labelledby='margin-label'
-                defaultValue={10}
-                step={5}
-                marks={true}
-                valueLabelDisplay='auto'
-                max={25}
-                min={5}
-                style={{ width: "175px" }}
-              />
-            </Grid>
-          </Grid>
-
-          <Grid container direction='row' justify='space-around' spacing={2} alignItems='flex-end'>
-            <div>
-              <Barcode {...settings} />
-            </div>
-          </Grid>
+          </Paper>
         </Grid>
-      </form>
+      </Grid>
     </Container>
   );
 }
