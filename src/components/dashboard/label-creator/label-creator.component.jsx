@@ -15,9 +15,11 @@ import FormatItalicIcon from "@material-ui/icons/FormatItalic";
 import FormatColorFillIcon from "@material-ui/icons/FormatColorFill";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
-import IconButton from "@material-ui/core/IconButton";
 import VerticalAlignTopIcon from "@material-ui/icons/VerticalAlignTop";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import Menu from "@material-ui/core/Menu";
+import SettingsIcon from "@material-ui/icons/Settings";
 
 import "./label-creator.styles.css";
 
@@ -55,11 +57,28 @@ const colors = [
   { value: "#008000", label: "Green" },
 ];
 
+const settingsMenuItems = [
+  { value: "value", label: "Setting1" },
+  { value: "value2", label: "Setting2" },
+  { value: "value3", label: "Setting3" },
+];
+
 function LabelCreator() {
   const classes = useStyles();
   const [fontStyle, setFontStyle] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = useState({
+    lineColor: null,
+    settings: null,
+  });
+  // const [open, setOpen] = useState({
+  //   settings: false,
+  //   color: false,
+  // });
+  const open = {
+    color: Boolean(anchorEl.lineColor),
+    settings: Boolean(anchorEl.settings),
+  };
+
   const [settings, setSettings] = useState({
     value: Math.floor(Math.random() * 100000000),
     format: "CODE128A",
@@ -80,50 +99,31 @@ function LabelCreator() {
 
   /* Updates state values when modified
    **********************************************/
-  const handleChangeByName = (e) => {
-    const { name, value } = e.target;
+  //This handler is used for textfields
+  const handleChange = (name) => (e) => {
+    setSettings((settings) => ({ ...settings, [name]: e.target.value }));
+  };
+  // This event handler will change all other items such as sliders and material-ui buttons.
+  const handleChangeOther = (name) => (e, value) => {
     setSettings((settings) => ({ ...settings, [name]: value }));
   };
-
-  const handleChangeWidth = (e, value) => {
-    setSettings((settings) => ({ ...settings, width: value }));
-  };
-
-  const handleChangeHeight = (e, value) => {
-    setSettings((settings) => ({ ...settings, height: value }));
-  };
-
-  const handleChangeFont = (e, value) => {
-    setSettings((settings) => ({ ...settings, fontSize: value }));
-  };
-
-  const handleChangeMarginSize = (e, value) => {
-    setSettings((settings) => ({ ...settings, margin: value }));
-  };
-
-  const handleChangeTextMargin = (e, value) => {
-    setSettings((settings) => ({ ...settings, textMargin: value }));
-  };
-
-  const handleAlignment = (event, newAlignment) => {
-    setSettings((settings) => ({ ...settings, textAlign: newAlignment }));
-  };
-
-  const handleVerticalAlignment = (event, value, name) => {
-    setSettings((settings) => ({ ...settings, textPosition: value }));
-  };
-
+  //Font formatting needs to be separate because the information is stored as an array and will not be passed to the settings with a ... (spread) when calling the barcode component.
   const handleFormat = (event, newFormats) => {
     setFontStyle(newFormats);
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (selection) => (event) => {
+    setAnchorEl((anchorEl) => ({ ...anchorEl, [selection]: event.currentTarget }));
   };
 
-  const handlePickColor = (option) => {
-    setSettings((settings) => ({ ...settings, lineColor: option.value }));
-    setAnchorEl(null);
+  const handleClickMenuItem = (selection, option) => {
+    //Pass the "selection" as a string and then alter the state of AnchorEl
+    setSettings((settings) => ({ ...settings, [selection]: option.value }));
+    setAnchorEl((anchorEl) => ({ ...anchorEl, [selection]: null }));
+  };
+
+  const toggleTextVisibility = (e) => {
+    setSettings((displayValue) => ({ ...settings, displayValue: !settings.displayValue }));
   };
 
   const StyledToggleButtonGroup = withStyles((theme) => ({
@@ -168,6 +168,34 @@ function LabelCreator() {
                 <Grid container direction='row' spacing={1}>
                   <Grid item xs={12}>
                     <Paper>
+                      <ToggleButtonGroup>
+                        <ToggleButton
+                          style={{ border: "none" }}
+                          aria-label='more'
+                          aria-controls='long-menu'
+                          aria-haspopup='true'
+                          onClick={handleClick("settings")}
+                        >
+                          <SettingsIcon />
+                        </ToggleButton>
+                        <Menu
+                          id='settings'
+                          anchorEl={anchorEl.settings}
+                          keepMounted
+                          open={open.settings}
+                          onClose={handleClickMenuItem}
+                        >
+                          {settingsMenuItems.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              primaryText={option.label}
+                              onClick={(event) => handleClickMenuItem("settings", option, event)}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </ToggleButtonGroup>
                       <StyledToggleButtonGroup
                         value={fontStyle}
                         onChange={handleFormat}
@@ -185,7 +213,7 @@ function LabelCreator() {
                         style={{ marginLeft: 1 }}
                         value={settings.textAlign}
                         exclusive
-                        onChange={handleAlignment}
+                        onChange={handleChangeOther("textAlign")}
                         aria-label='text alignment'
                       >
                         <ToggleButton value='left' aria-label='left aligned'>
@@ -203,7 +231,7 @@ function LabelCreator() {
                         style={{ marginLeft: 1 }}
                         value={settings.textPosition}
                         exclusive
-                        onChange={handleVerticalAlignment}
+                        onChange={handleChangeOther("textPosition")}
                         aria-label='text alignment'
                       >
                         <ToggleButton value='top' aria-label='left aligned'>
@@ -212,33 +240,44 @@ function LabelCreator() {
                       </StyledToggleButtonGroup>
 
                       <ToggleButtonGroup>
-                        <IconButton
+                        <ToggleButton
+                          style={{ border: "none" }}
                           aria-label='more'
                           aria-controls='long-menu'
                           aria-haspopup='true'
-                          onClick={handleClick}
+                          onClick={handleClick("lineColor")}
                         >
                           <FormatColorFillIcon />
-                        </IconButton>
+                        </ToggleButton>
                         <Menu
                           id='lineColor'
                           name='lineColor'
-                          anchorEl={anchorEl}
+                          anchorEl={anchorEl.lineColor}
                           keepMounted
-                          open={open}
-                          onClose={handlePickColor}
+                          open={open.color}
+                          onClose={handleClickMenuItem}
                         >
                           {colors.map((option) => (
                             <MenuItem
                               key={option.value}
                               primaryText={option.label}
-                              onClick={(event) => handlePickColor(option, event)}
+                              onClick={(event) => handleClickMenuItem("lineColor", option, event)}
                             >
                               {option.label}
                             </MenuItem>
                           ))}
                         </Menu>
                       </ToggleButtonGroup>
+
+                      <StyledToggleButtonGroup value={settings.displayValue}>
+                        <ToggleButton>
+                          {settings.displayValue ? (
+                            <VisibilityOffIcon onClick={toggleTextVisibility} />
+                          ) : (
+                            <VisibilityIcon onClick={toggleTextVisibility} />
+                          )}
+                        </ToggleButton>
+                      </StyledToggleButtonGroup>
                     </Paper>
                   </Grid>
                 </Grid>
@@ -259,7 +298,7 @@ function LabelCreator() {
                         value={settings.value}
                         name='value'
                         label='Barcode value'
-                        onChange={handleChangeByName}
+                        onChange={handleChange("value")}
                       />
                     </Grid>
                     <Grid item>
@@ -270,7 +309,6 @@ function LabelCreator() {
                           </MenuItem>
                         ))}
                       </DropDownMenu> */}
-                      {console.log("Settings...", settings)}
                       <Textfield
                         style={{ width: "100%" }}
                         size='small'
@@ -279,7 +317,7 @@ function LabelCreator() {
                         name='format'
                         label='Format'
                         value={settings.format}
-                        onChange={handleChangeByName}
+                        onChange={handleChange("format")}
                       >
                         {codeFormats.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
@@ -309,7 +347,7 @@ function LabelCreator() {
                         max={5}
                         step={1}
                         valueLabelDisplay='auto'
-                        onChange={handleChangeWidth}
+                        onChange={handleChangeOther("width")}
                         style={{ width: "175px" }}
                       />
                     </Grid>
@@ -326,7 +364,7 @@ function LabelCreator() {
                         valueLabelDisplay='auto'
                         max={120}
                         min={10}
-                        onChange={handleChangeHeight}
+                        onChange={handleChangeOther("height")}
                         style={{ width: "175px" }}
                       />
                     </Grid>
@@ -344,7 +382,7 @@ function LabelCreator() {
                         max={24}
                         min={10}
                         style={{ width: "175px" }}
-                        onChange={handleChangeFont}
+                        onChange={handleChangeOther("fontSize")}
                       />
                     </Grid>
                     <Grid item>
@@ -361,7 +399,7 @@ function LabelCreator() {
                         max={10}
                         min={0}
                         style={{ width: "175px" }}
-                        onChange={handleChangeTextMargin}
+                        onChange={handleChangeOther("textMargin")}
                       />
                     </Grid>
                     <Grid item>
@@ -378,7 +416,7 @@ function LabelCreator() {
                         max={25}
                         min={5}
                         style={{ width: "175px" }}
-                        onChange={handleChangeMarginSize}
+                        onChange={handleChangeOther("margin")}
                       />
                     </Grid>
                     {/* Put additional rows in the right mini column here
