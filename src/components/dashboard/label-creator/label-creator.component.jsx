@@ -58,10 +58,12 @@ const colors = [
   { value: "#008000", label: "Green" },
 ];
 
-const settingsMenuItems = [
-  { value: "value", label: "Setting1" },
-  { value: "value2", label: "Setting2" },
-  { value: "value3", label: "Setting3" },
+const presetMenuItems = [
+  { value: "fnsku", label: "FNSKU" },
+  { value: "2x2", label: "2 x 2" },
+  { value: "2x3", label: "2 x 3" },
+  { value: "3x2", label: "3 x 2" },
+  { value: "4x6", label: "4 x 6" },
 ];
 
 const fontFaces = [
@@ -71,14 +73,6 @@ const fontFaces = [
   { value: "consolas", label: "Consolas" },
   { value: "tahoma", label: "Tahoma" },
   { value: "verdana", label: "Verdana" },
-];
-const labelSizes = [
-  { value: "4 6", label: "4 x 6" },
-  { value: "4 2", label: "4 x 2" },
-  { value: "3 3", label: "3 x 3" },
-  { value: "2 3", label: "2 x 3" },
-  { value: "2 2", label: "2 x 2" },
-  { value: "2.63 1", label: "2 5/8 x 1" },
 ];
 
 const labelTypes = [
@@ -105,19 +99,81 @@ function LabelCreator() {
     value: Math.floor(Math.random() * 100000000).toString(),
     format: "CODE128A",
     renderer: "svg",
-    width: 2,
-    height: 100,
+    width: 1.5,
+    height: 20,
     displayValue: true,
     fontOptions: "",
     font: "monospace",
     textAlign: "center",
     textPosition: "bottom",
     textMargin: 2,
-    fontSize: 20,
+    fontSize: 16,
     background: "#ffffff",
     lineColor: "#000000",
     margin: 10,
+    labelWidth: "2.63in",
+    labelHeight: "1in",
+    labelTitle: "Preview Label",
   });
+
+  // Applies styling for label presets
+  const applyPreset = (preset, selection, option) => {
+    setAnchorEl((anchorEl) => ({ ...anchorEl, [selection]: null })); // Closes the menu
+    switch (preset) {
+      case "fnsku":
+        setSettings((settings) => ({
+          ...settings,
+          format: "CODE128A",
+          width: 1.5,
+          height: 20,
+          labelWidth: "2.63in",
+          labelHeight: "1in",
+          fontSize: 16,
+        }));
+        break;
+      case "4x6":
+        setSettings((settings) => ({
+          ...settings,
+          width: 2.75,
+          height: 90,
+          labelWidth: "4in",
+          labelHeight: "6in",
+          fontSize: 22,
+        }));
+        break;
+      case "2x3":
+        setSettings((settings) => ({
+          ...settings,
+          width: 1.25,
+          height: 25,
+          labelWidth: "2in",
+          labelHeight: "3in",
+          fontSize: 16,
+        }));
+        break;
+      case "3x2":
+        setSettings((settings) => ({
+          ...settings,
+          width: 2,
+          height: 25,
+          labelWidth: "3in",
+          labelHeight: "2in",
+          fontSize: 18,
+        }));
+        break;
+      case "2x2":
+        setSettings((settings) => ({
+          ...settings,
+          format: "CODE128A",
+          width: 1.25,
+          height: 25,
+          labelWidth: "2in",
+          labelHeight: "2in",
+        }));
+        break;
+      default:
+    }
+  };
 
   console.log("Settings", settings);
   /* Updates state values when modified
@@ -194,12 +250,13 @@ function LabelCreator() {
                           anchorEl={anchorEl.settings}
                           keepMounted
                           open={open.settings}
-                          onClose={handleClickMenuItem}
                         >
-                          {settingsMenuItems.map((option) => (
+                          {presetMenuItems.map((option) => (
                             <MenuItem
                               key={option.value}
-                              onClick={(event) => handleClickMenuItem("settings", option, event)}
+                              onClick={(event) =>
+                                applyPreset(option.value, "settings", option, event)
+                              }
                             >
                               {option.label}
                             </MenuItem>
@@ -351,6 +408,7 @@ function LabelCreator() {
                 <Grid item>
                   {/* Left Mini Panel */}
                   <Grid container direction='column' spacing={3}>
+                    {/* Barcode Value Textbox */}
                     <Grid item>
                       <Textfield
                         size='small'
@@ -362,6 +420,7 @@ function LabelCreator() {
                         onChange={handleChange("value")}
                       />
                     </Grid>
+                    {/* Format Menu */}
                     <Grid item>
                       <Textfield
                         style={{ width: "100%" }}
@@ -380,6 +439,18 @@ function LabelCreator() {
                         ))}
                       </Textfield>
                     </Grid>
+                    {/* Title Textbox */}
+                    <Grid item>
+                      <Textfield
+                        size='small'
+                        style={{ width: "100%" }}
+                        variant='outlined'
+                        value={settings.labelTitle}
+                        name='labelTitle'
+                        label='Label Title'
+                        onChange={handleChange("labelTitle")}
+                      />
+                    </Grid>
                     {/* Put additional rows in the left mini column here
                       <Grid item> information </Grid>
                     */}
@@ -395,11 +466,11 @@ function LabelCreator() {
                       <Slider
                         id='width'
                         aria-labelledby='width-label'
-                        defaultValue={settings.width}
+                        value={settings.width}
                         marks={true}
                         min={1}
-                        max={5}
-                        step={1}
+                        max={3}
+                        step={0.25}
                         valueLabelDisplay='auto'
                         onChange={handleChangeOther("width")}
                         style={{ width: "175px" }}
@@ -412,7 +483,6 @@ function LabelCreator() {
                       <Slider
                         id='height'
                         aria-labelledby='height-label'
-                        defaultValue={50}
                         step={10}
                         marks={true}
                         valueLabelDisplay='auto'
@@ -448,7 +518,6 @@ function LabelCreator() {
                       <Slider
                         id='textMargin'
                         aria-labelledby='text-margin-label'
-                        defaultValue={2}
                         step={1}
                         marks={true}
                         valueLabelDisplay='auto'
@@ -466,7 +535,6 @@ function LabelCreator() {
                       <Slider
                         id='margin'
                         aria-labelledby='margin-label'
-                        defaultValue={10}
                         step={5}
                         marks={true}
                         valueLabelDisplay='auto'
@@ -493,7 +561,21 @@ function LabelCreator() {
               <Grid item xs={12}>
                 <Typography variant='h5'>Preview</Typography>
                 <Divider />
-                <Barcode {...settings} />
+                <div
+                  style={{
+                    border: "1px solid #ababab",
+                    width: settings.labelWidth,
+                    height: settings.labelHeight,
+                  }}
+                >
+                  <Grid container direction='column' spacing={0.5} textAlign='left'>
+                    <Grid item>{settings.labelTitle}</Grid>
+
+                    <Grid item>
+                      <Barcode {...settings} />
+                    </Grid>
+                  </Grid>
+                </div>
               </Grid>
             </Grid>
           </Paper>
