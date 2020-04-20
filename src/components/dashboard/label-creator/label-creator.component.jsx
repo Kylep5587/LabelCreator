@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid/";
 import Textfield from "@material-ui/core/TextField";
-import { MenuItem, Slider, Typography } from "@material-ui/core";
+import { MenuItem, Slider, Typography, Button } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Barcode from "react-barcode";
 import Paper from "@material-ui/core/Paper";
@@ -21,6 +21,7 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import Menu from "@material-ui/core/Menu";
 import SettingsIcon from "@material-ui/icons/Settings";
 import TextFormatIcon from "@material-ui/icons/TextFormat";
+import PrintIcon from "@material-ui/icons/Print";
 
 import "./label-creator.styles.css";
 
@@ -134,7 +135,7 @@ function LabelCreator() {
       case "4x6":
         setSettings((settings) => ({
           ...settings,
-          width: 2.75,
+          width: 2.5,
           height: 90,
           labelWidth: "4in",
           labelHeight: "6in",
@@ -144,7 +145,7 @@ function LabelCreator() {
       case "2x3":
         setSettings((settings) => ({
           ...settings,
-          width: 1.25,
+          width: 1,
           height: 25,
           labelWidth: "2in",
           labelHeight: "3in",
@@ -154,7 +155,7 @@ function LabelCreator() {
       case "3x2":
         setSettings((settings) => ({
           ...settings,
-          width: 2,
+          width: 1.75,
           height: 25,
           labelWidth: "3in",
           labelHeight: "2in",
@@ -165,7 +166,7 @@ function LabelCreator() {
         setSettings((settings) => ({
           ...settings,
           format: "CODE128A",
-          width: 1.25,
+          width: 1,
           height: 25,
           labelWidth: "2in",
           labelHeight: "2in",
@@ -180,7 +181,8 @@ function LabelCreator() {
    **********************************************/
   //This handler is used for textfields
   const handleChange = (name) => (e) => {
-    setSettings((settings) => ({ ...settings, [name]: e.target.value }));
+    const { value } = e.target;
+    setSettings((settings) => ({ ...settings, [name]: value }));
   };
   // This event handler will change all other items such as sliders and material-ui buttons.
   const handleChangeOther = (name) => (e, value) => {
@@ -564,6 +566,7 @@ function LabelCreator() {
                 <div
                   style={{
                     border: "1px solid #ababab",
+                    fontSize: "11pt",
                     width: settings.labelWidth,
                     height: settings.labelHeight,
                   }}
@@ -576,6 +579,10 @@ function LabelCreator() {
                     </Grid>
                   </Grid>
                 </div>
+                <br />
+                <Button color='primary' variant='contained'>
+                  <PrintIcon /> Print Label
+                </Button>
               </Grid>
             </Grid>
           </Paper>
