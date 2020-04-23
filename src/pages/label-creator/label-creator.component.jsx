@@ -1,8 +1,6 @@
-import React from 'react';
-import LabelCreator from '../../components/dashboard/label-creator/label-creator.component';
+import React from "react";
+import LabelCreator from "../../components/label-creator/label-creator.component";
 
-const LabelCreatorPage = () => (
-    <LabelCreator />
-);
+const LabelCreatorPage = () => <LabelCreator />;
 
 export default LabelCreatorPage;
