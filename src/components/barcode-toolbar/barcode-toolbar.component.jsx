@@ -5,6 +5,12 @@ import TextFormatIcon from "@material-ui/icons/TextFormat";
 import VerticalAlignTopIcon from "@material-ui/icons/VerticalAlignTop";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import FormatAlignLeftIcon from "@material-ui/icons/FormatAlignLeft";
+import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
+import FormatAlignRightIcon from "@material-ui/icons/FormatAlignRight";
+import FormatBoldIcon from "@material-ui/icons/FormatBold";
+import FormatItalicIcon from "@material-ui/icons/FormatItalic";
+import FormatColorFillIcon from "@material-ui/icons/FormatColorFill";
 
 const [settings, setSettings] = useState({
   value: Math.floor(Math.random() * 100000000).toString(),
@@ -22,6 +28,12 @@ const [settings, setSettings] = useState({
   background: "#ffffff",
   lineColor: "#000000",
   margin: 10,
+});
+
+const [labelDetails, setLabelDetails] = useState({
+  labelWidth: "2.63in",
+  labelHeight: "1in",
+  labelTitle: "Preview Label",
 });
 
 const colors = [
